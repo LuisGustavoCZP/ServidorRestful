@@ -9,9 +9,14 @@ function CreateItem (item)
     return li;
 }
 
-function Consult () 
+function Consult ()
 {
-    fetch("/produto"+"?"+"id"+"="+newID.value)
+    ConsultID(newID.value);
+}
+
+function ConsultID (id) 
+{
+    fetch("/produto"+"/"+(id?id:"all"))
     .then((resp) => resp.json())
     .then(function (data) {
         console.log(data);
@@ -38,8 +43,10 @@ function Insert ()
     })
     .then((resp) => resp.json())
     .then(function (data) {
-        //console.log('Request succeeded with JSON response', data);
-        console.log(data);
+        console.log('Insert request', data);
+        if(data){
+            Consult ();
+        }
     })
     .catch(function (error) {
         console.log('Request failed', error);
@@ -56,8 +63,10 @@ function Update ()
     })
     .then((resp) => resp.json())
     .then(function (data) {
-        //console.log('Request succeeded with JSON response', data);
-        console.log(data);
+        console.log('Update request ', data);
+        if(data){
+            ConsultID ();
+        }
     })
     .catch(function (error) {
         console.log('Request failed', error);
@@ -74,10 +83,14 @@ function Delete ()
     })
     .then((resp) => resp.json())
     .then(function (data) {
-        //console.log('Request succeeded with JSON response', data);
-        console.log(data);
+        console.log('Delete request', data);
+        if(data){
+            ConsultID ();
+        }
     })
     .catch(function (error) {
         console.log('Request failed', error);
     });
 }
+
+ConsultID ();

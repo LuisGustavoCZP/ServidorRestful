@@ -11,11 +11,16 @@ app.use(express.static(rootPath+"/public"));
 
 let produto = [];
 
-app.get("/produto", (req, res) => 
+app.get("/produto/:id", (req, res) => 
 {
-    const id = req.query["id"];
-
-    const prods = produto.filter(item => {return item.id == id;});
+    const id = req.params["id"];
+    let prods;
+    if(id == "all"){
+        prods = produto;
+    } else {
+        prods = produto.filter(item => {return item.id == id;});
+    }
+     
     res.json(prods); //JSON.stringify()
     console.log(`Get id ${id}`);
 });
@@ -28,6 +33,7 @@ app.post("/produto", (req, res) =>
     {
         res.send(false);
         console.log(`NOT Inserted id ${id}`);
+        return;
     }
 
     produto.push({id:id, name:name});
@@ -43,18 +49,47 @@ app.put("/produto", (req, res) =>
     {
         res.send(false);
         console.log(`NOT Updated id ${id}`);
+        return;
     }
 
-    const prods = produto.findIndex(());//((x, y, i) => {return y.id == id}, 0);
+    let s = false;
+    produto.forEach((p, i) => 
+    {
+        if(p.id == id) 
+        {
+            p.name = name;
+            s = true;
+        }
+    });
+        //((x, y, i) => {}, 0);
     //produto.push({id:id, name:name});
-    res.send(prods);
-    console.log(`Updated id ${id}`);
+    res.send(s);
+    console.log(`${s?"":"NOT "}Updated id ${id}`);
 });
 
 app.delete("/produto", (req, res) => 
 {
     const id = req.body["id"];
-    console.log(`Delete id ${id}`);
+    if(!id) 
+    {
+        res.send(false);
+        console.log(`NOT Deleted id ${id}`);
+        return;
+    }
+
+    let s = false;
+    const dels = produto.reduce((p, n, i) => 
+    {
+        if(n.id == id) 
+        {
+            p.push(i);
+            s = true;
+        }
+        return p;
+    }, []);
+    if(s) dels.forEach(i => { produto.splice(i, 1); });
+    res.send(s);
+    console.log(`${s?"":"NOT "}Deleted id ${id}`);
 });
 
 app.listen(port, () => {console.log(`Iniciado Backend na porta ${port}`)});
